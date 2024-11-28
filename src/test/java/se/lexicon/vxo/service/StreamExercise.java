@@ -8,6 +8,7 @@ import se.lexicon.vxo.model.PersonDto;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -170,9 +171,13 @@ public class StreamExercise {
 
         Optional<String> optional = null;
 
-        optional = people.stream()
+        /*optional = people.stream()
                 .filter(person -> person.getPersonId() == personId)
                 .map(person -> person.getDateOfBirth().getDayOfWeek() + " " + person.getDateOfBirth().getDayOfMonth() + " " + person.getDateOfBirth().getMonth() + " " + person.getDateOfBirth().getYear())
+                .findFirst();*/
+        optional = people.stream()
+                .filter(person -> person.getPersonId() == personId)
+                .map(person -> person.getDateOfBirth().format(DateTimeFormatter.ofPattern("EEEE dd MMMM yyyy")).toUpperCase())
                 .findFirst();
 
         assertNotNull(optional);
@@ -191,9 +196,8 @@ public class StreamExercise {
         double expected = 54.42;
         double averageAge = 0;
 
-        //TODO:Write code here
-        averageAge = people.stream().mapToInt(personToAge).average().getAsDouble();
-
+        //averageAge = people.stream().mapToInt(personToAge).average().getAsDouble();
+        averageAge = people.stream().mapToInt(personToAge).average().orElse(0.00);
         assertTrue(averageAge > 0);
         assertEquals(expected, averageAge, .01);
     }
@@ -206,14 +210,12 @@ public class StreamExercise {
         String[] expected = {"Ada", "Ana", "Anna", "Ava", "Aya", "Bob", "Ebbe", "Efe", "Eje", "Elle", "Hannah", "Maram", "Natan", "Otto"};
 
         String[] result = null;
-        Predicate<Person> palin = person -> {
-            StringBuilder firstName = new StringBuilder(person.getFirstName()).reverse();
-            return person.getFirstName().equalsIgnoreCase(firstName.toString());
-        };
 
-        //TODO:Write code here
         result = people.stream()
-                .filter(palin)
+                .filter(person -> {
+                    StringBuilder firstName = new StringBuilder(person.getFirstName()).reverse();
+                    return person.getFirstName().equalsIgnoreCase(firstName.toString());
+                })
                 .map(Person::getFirstName).sorted().distinct().toArray(String[]::new);
 
         assertNotNull(result);
@@ -242,8 +244,9 @@ public class StreamExercise {
     public void task14() {
         LocalDate[] _2020_dates = null;
 
-        _2020_dates = Stream.iterate(LocalDate.of(2020, 1, 1), date -> date.plusDays(1)).limit(366).toArray(LocalDate[]::new);
-
+        //_2020_dates = Stream.iterate(LocalDate.of(2020, 1, 1), date -> date.plusDays(1)).limit(366).toArray(LocalDate[]::new);
+        _2020_dates = Stream.iterate(LocalDate.of(2020,01,01),date->date.getYear()==2020,date -> date.plusDays(1)).toArray(LocalDate[]::new);
+        for(LocalDate d:_2020_dates) System.out.println(d);
         assertNotNull(_2020_dates);
         assertEquals(366, _2020_dates.length);
         assertEquals(LocalDate.parse("2020-01-01"), _2020_dates[0]);
